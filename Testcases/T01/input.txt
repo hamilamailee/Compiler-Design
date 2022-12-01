@@ -1,6 +1,6 @@
 void main(void) {
 
-int a = 3d; 
+int a == 3d; 
 int b = 100; // def aa
 int c = a * b;  */
 int d = 5 * ( c + b );

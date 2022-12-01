@@ -6,7 +6,7 @@ class Scanner:
         self.KEYWORD = ["if", "else", "void", "int", "while", "break",
                         "switch", "default", "case", "return", "endif"]
         self.SYMBOL = [";", ":", ",", "[", "]",
-                       "(", ")", "{", "}", "+", "-", "*", "=", "<", "/"]
+                       "(", ")", "{", "}", "+", "-", "*", "<", "/"]
         self.WHITESPACE = [" ", "\n", "\r", "\t", "\v", "\f"]
 
         self.lines = open(input_file).readlines()
@@ -36,7 +36,6 @@ class Scanner:
                     self.start = self.pointer
                 elif char == "=":
                     self.state = 6
-                    self.start = self.pointer
                 elif char == "*":
                     self.state = 8
                     self.start = self.pointer
@@ -45,6 +44,8 @@ class Scanner:
                     self.start = self.pointer
                 elif char in self.WHITESPACE:
                     pass
+                else:
+                    errors.append("({}, Invalid input)")
             elif self.state == 1:
                 if char in self.LETTER or char in self.DIGIT:
                     pass
@@ -69,6 +70,13 @@ class Scanner:
                     errors.append("({}, Invaid number)".format(
                         line[self.start:self.pointer+1]))
                     self.state = 0
+            elif self.state == 6:
+                self.state = 0
+                if char == "=":
+                    tokens.append("(SYMBOL, ==)")
+                else:
+                    tokens.append("(SYMBOL, =)")
+                    continue
             self.pointer += 1
         print("\nTOKENS:")
         for t in tokens:

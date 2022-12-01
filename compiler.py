@@ -14,5 +14,3 @@ for i in os.listdir(testcases):
     scanner = Scanner(os.path.join(testcases, i, "input.txt"))
     scanner.tokenize()
     break
-
-print("salam"[1:2])
