@@ -9,6 +9,8 @@ class Scanner:
                        "(", ")", "{", "}", "+", "-", "<"]
         self.WHITESPACE = [" ", "\n", "\r", "\t", "\v", "\f"]
         self.EXTRA = ["=", "*", "/"]
+        self.VALID = (self.DIGIT + self.KEYWORD +
+                      self.SYMBOL + self.WHITESPACE + self.EXTRA)
 
         self.lines = open(input_file).readlines()
         self.symbols = set(self.KEYWORD)
@@ -17,7 +19,6 @@ class Scanner:
         self.state = 0
         self.errors = 0
         self.comment_line = 0
-        self.comment_start = 0
 
         self.tokens = open("tokens.txt", "a+")
         self.lexical_erros = open("lexical_errors.txt", "a+")
@@ -38,7 +39,7 @@ class Scanner:
 
         if self.state != 0:
             self.errors += 1
-            err_str = self.lines[self.comment_line][self.start:] + \
+            err_str = self.lines[self.comment_line].strip()[self.start:] + \
                 "".join(self.lines[self.comment_line+1:])
             if len(err_str) >= 7:
                 err_str = err_str[:7]+"..."
@@ -49,6 +50,7 @@ class Scanner:
         self.lexical_erros.close()
 
     def get_next_token(self, line, line_index):
+        line = line + "\n"
         tokens = []
         errors = []
         while self.pointer != len(line):
@@ -108,6 +110,9 @@ class Scanner:
                 self.state = 0
                 if char == "=":
                     tokens.append("(SYMBOL, ==)")
+                elif char not in self.VALID:
+                    errors.append("({}, Invalid input)".format(
+                        line[self.pointer-1:self.pointer+1]))
                 else:
                     tokens.append("(SYMBOL, =)")
                     continue
@@ -124,7 +129,7 @@ class Scanner:
                     self.start = self.pointer - 1
                 elif char == "*":
                     self.state = 13
-                    self.comment_start = self.pointer - 1
+                    self.start = self.pointer - 1
                     self.comment_line = line_index
                 else:
                     tokens.append("(SYMBOL, /)")
@@ -146,9 +151,9 @@ class Scanner:
                 elif char != "*":
                     self.state = 13
             self.pointer += 1
-        if self.state in [6, 8, 10]:
-            tokens.append("(SYMBOL, {})".format(line[-1]))
-            self.state = 0
+        # if self.state in [6, 8, 10]:
+        #     tokens.append("(SYMBOL, {})".format(line[-1]))
+        #     self.state = 0
         # if len(tokens) > 0:
         #     print("\nTOKENS:")
         #     for t in tokens:

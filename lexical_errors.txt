@@ -1,1 +1,1 @@
-2.	(*/, Unmatched comment) 
+There is no lexical error.

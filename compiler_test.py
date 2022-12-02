@@ -57,4 +57,3 @@ for i in os.listdir(testcases):
         find_dif_files(os.path.join(testcases, i, lex), lex)
     except:
         print("Testcases with no output.")
-    break
