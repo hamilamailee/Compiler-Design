@@ -1,16 +1,7 @@
 from scanner import Scanner
-import os
 
 """ Hamila Mailee       97106295 """
-""" Sepehr Ilami        """
-""" 
-    References:
-        [1]
-"""
+""" Sepehr Ilami        97101286 """
 
-testcases = "Testcases"
-
-for i in os.listdir(testcases):
-    scanner = Scanner(os.path.join(testcases, i, "input.txt"))
-    scanner.tokenize()
-    break
+scanner = Scanner("input.txt")
+scanner.tokenize()

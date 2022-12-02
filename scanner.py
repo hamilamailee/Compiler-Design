@@ -11,16 +11,42 @@ class Scanner:
         self.EXTRA = ["=", "*", "/"]
 
         self.lines = open(input_file).readlines()
+        self.symbols = set()
         self.start = 0
         self.pointer = 0
         self.state = 0
+        self.errors = 0
         self.comment_line = 0
+        self.comment_start = 0
+
+        self.tokens = open("tokens.txt", "a+")
+        self.lexical_erros = open("lexical_errors.txt", "a+")
+        self.symbol_table = open("symbol_table.txt", "a+")
 
     def tokenize(self):
         line_index = 0
         for line in self.lines:
-            self.get_next_token(line.strip(), line_index)
+            self.errors += self.get_next_token(line.strip(), line_index)
             line_index += 1
+
+        string = ""
+        for i in range(len(self.symbols)):
+            string += "{}.\t".format(i+1) + self.symbols.pop() + "\n"
+        self.symbol_table.write(string)
+        self.symbol_table.close()
+        self.tokens.close()
+
+        if self.state != 0:
+            self.errors += 1
+            err_str = self.lines[self.comment_line][self.start:] + \
+                "".join(self.lines[self.comment_line+1:])
+            if len(err_str) >= 7:
+                err_str = err_str[:7]+"..."
+            self.lexical_erros.write("{}.\t".format(
+                self.comment_line + 1) + "({}, Unclosed comment)".format(err_str))
+        if self.errors == 0:
+            self.lexical_erros.write("There is no lexical error.")
+        self.lexical_erros.close()
 
     def get_next_token(self, line, line_index):
         tokens = []
@@ -55,9 +81,11 @@ class Scanner:
                     if line[self.start:self.pointer] in self.KEYWORD:
                         tokens.append("(KEYWORD, {})".format(
                             line[self.start:self.pointer]))
+                        self.symbols.add(line[self.start:self.pointer])
                     else:
                         tokens.append("(ID, {})".format(
                             line[self.start:self.pointer]))
+                        self.symbols.add(line[self.start:self.pointer])
                     self.state = 0
                     continue
                 else:
@@ -96,7 +124,7 @@ class Scanner:
                     self.start = self.pointer - 1
                 elif char == "*":
                     self.state = 13
-                    self.start = self.pointer - 1
+                    self.comment_start = self.pointer - 1
                     self.comment_line = line_index
                 else:
                     tokens.append("(SYMBOL, /)")
@@ -106,8 +134,8 @@ class Scanner:
                 if self.pointer != len(line) - 1:
                     pass
                 else:
-                    tokens.append("(COMMENT,{})".format(
-                        line[self.start:self.pointer+1]))
+                    # tokens.append("(COMMENT,{})".format(
+                    #     line[self.start:self.pointer+1]))
                     self.state = 0
             elif self.state == 13:
                 if char == "*":
@@ -118,12 +146,20 @@ class Scanner:
                 elif char == "/":
                     self.state = 0
             self.pointer += 1
-        if len(tokens) > 0:
-            print("\nTOKENS:")
-            for t in tokens:
-                print(t, end=" ")
-        if len(errors) > 0:
-            print("\nERRORS:")
-            for e in errors:
-                print(e, end=" ")
+        # if len(tokens) > 0:
+        #     print("\nTOKENS:")
+        #     for t in tokens:
+        #         print(t, end=" ")
+        # if len(errors) > 0:
+        #     print("\nERRORS:")
+        #     for e in errors:
+        #         print(e, end=" ")
         self.pointer = 0
+        if len(tokens) > 0:
+            string = "{}.\t".format(line_index + 1) + " ".join(tokens) + "\n"
+            self.tokens.write(string)
+        if len(errors) > 0:
+            string = "{}.\t".format(line_index + 1) + " ".join(errors) + "\n"
+            self.lexical_erros.write(string)
+
+        return len(errors)
