@@ -29,34 +29,17 @@ class Scanner:
         for line in self.lines:
             self.errors += self.get_next_token(line.strip(), line_index)
             line_index += 1
-
-        string = ""
-        for i in range(len(self.symbols)):
-            string += "{}.\t".format(i+1) + self.symbols.pop() + "\n"
-        self.symbol_table.write(string)
-        self.symbol_table.close()
-        self.tokens.close()
-
-        if self.state != 0:
-            self.errors += 1
-            err_str = self.lines[self.comment_line].strip()[self.start:] + \
-                "".join(self.lines[self.comment_line+1:])
-            if len(err_str) >= 7:
-                err_str = err_str[:7]+"..."
-            self.lexical_erros.write("{}.\t".format(
-                self.comment_line + 1) + "({}, Unclosed comment) \n".format(err_str))
-        if self.errors == 0:
-            self.lexical_erros.write("There is no lexical error.")
-        self.lexical_erros.close()
+        self.write_files()
 
     def get_next_token(self, line, line_index):
         line = line + "\n"
         tokens = []
         errors = []
+
         while self.pointer != len(line):
             char = line[self.pointer]
-            # print("chars is:{} in pointer:{}. State:{}".format(
-            #     char, self.pointer, self.state))
+
+            #   STARTING FROM STATE0   #
             if self.state == 0:
                 if char in self.SYMBOL:
                     tokens.append("(SYMBOL, {})".format(char))
@@ -76,6 +59,8 @@ class Scanner:
                     pass
                 else:
                     errors.append("({}, Invalid input)".format(char))
+
+            #   STARTING FROM STATE1   #
             elif self.state == 1:
                 if char in self.LETTER or char in self.DIGIT:
                     pass
@@ -94,6 +79,8 @@ class Scanner:
                     errors.append("({}, Invalid input)".format(
                         line[self.start:self.pointer+1]))
                     self.state = 0
+
+            #   STARTING FROM STATE3   #
             elif self.state == 3:
                 if char in self.DIGIT:
                     pass
@@ -106,6 +93,8 @@ class Scanner:
                     errors.append("({}, Invalid number)".format(
                         line[self.start:self.pointer+1]))
                     self.state = 0
+
+            #   STARTING FROM STATE6   #
             elif self.state == 6:
                 self.state = 0
                 if char == "=":
@@ -116,6 +105,8 @@ class Scanner:
                 else:
                     tokens.append("(SYMBOL, =)")
                     continue
+
+            #   STARTING FROM STATE8   #
             elif self.state == 8:
                 self.state = 0
                 if char == "/":
@@ -123,6 +114,8 @@ class Scanner:
                 else:
                     tokens.append("(SYMBOL, *)")
                     continue
+
+            #   STARTING FROM STATE10  #
             elif self.state == 10:
                 if char == "/":
                     self.state = 11
@@ -135,33 +128,28 @@ class Scanner:
                     tokens.append("(SYMBOL, /)")
                     self.state = 0
                     continue
+
+            #   STARTING FROM STATE11  #
             elif self.state == 11:
                 if self.pointer != len(line) - 1:
                     pass
                 else:
-                    # tokens.append("(COMMENT,{})".format(
-                    #     line[self.start:self.pointer+1]))
                     self.state = 0
+
+            #   STARTING FROM STATE13  #
             elif self.state == 13:
                 if char == "*":
                     self.state = 14
+
+            #   STARTING FROM STATE14  #
             elif self.state == 14:
                 if char == "/":
                     self.state = 0
                 elif char != "*":
                     self.state = 13
+
             self.pointer += 1
-        # if self.state in [6, 8, 10]:
-        #     tokens.append("(SYMBOL, {})".format(line[-1]))
-        #     self.state = 0
-        # if len(tokens) > 0:
-        #     print("\nTOKENS:")
-        #     for t in tokens:
-        #         print(t, end=" ")
-        # if len(errors) > 0:
-        #     print("\nERRORS:")
-        #     for e in errors:
-        #         print(e, end=" ")
+
         self.pointer = 0
         if len(tokens) > 0:
             string = "{}.\t".format(line_index + 1) + " ".join(tokens) + " \n"
@@ -171,3 +159,23 @@ class Scanner:
             self.lexical_erros.write(string)
 
         return len(errors)
+
+    def write_files(self):
+        string = ""
+        for i in range(len(self.symbols)):
+            string += "{}.\t".format(i+1) + self.symbols.pop() + "\n"
+        self.symbol_table.write(string)
+        self.symbol_table.close()
+        self.tokens.close()
+
+        if self.state != 0:
+            self.errors += 1
+            err_str = self.lines[self.comment_line].strip()[self.start:] + \
+                "".join(self.lines[self.comment_line+1:])
+            if len(err_str) >= 7:
+                err_str = err_str[:7]+"..."
+            self.lexical_erros.write("{}.\t".format(
+                self.comment_line + 1) + "({}, Unclosed comment) \n".format(err_str))
+        if self.errors == 0:
+            self.lexical_erros.write("There is no lexical error.")
+        self.lexical_erros.close()
