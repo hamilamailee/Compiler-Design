@@ -11,7 +11,7 @@ class Scanner:
         self.EXTRA = ["=", "*", "/"]
 
         self.lines = open(input_file).readlines()
-        self.symbols = set()
+        self.symbols = set(self.KEYWORD)
         self.start = 0
         self.pointer = 0
         self.state = 0
@@ -43,7 +43,7 @@ class Scanner:
             if len(err_str) >= 7:
                 err_str = err_str[:7]+"..."
             self.lexical_erros.write("{}.\t".format(
-                self.comment_line + 1) + "({}, Unclosed comment)".format(err_str))
+                self.comment_line + 1) + "({}, Unclosed comment) \n".format(err_str))
         if self.errors == 0:
             self.lexical_erros.write("There is no lexical error.")
         self.lexical_erros.close()
@@ -141,10 +141,10 @@ class Scanner:
                 if char == "*":
                     self.state = 14
             elif self.state == 14:
-                if char != "*" or char != "/":
-                    self.state = 13
-                elif char == "/":
+                if char == "/":
                     self.state = 0
+                elif char != "*":
+                    self.state = 13
             self.pointer += 1
         # if len(tokens) > 0:
         #     print("\nTOKENS:")
@@ -156,10 +156,10 @@ class Scanner:
         #         print(e, end=" ")
         self.pointer = 0
         if len(tokens) > 0:
-            string = "{}.\t".format(line_index + 1) + " ".join(tokens) + "\n"
+            string = "{}.\t".format(line_index + 1) + " ".join(tokens) + " \n"
             self.tokens.write(string)
         if len(errors) > 0:
-            string = "{}.\t".format(line_index + 1) + " ".join(errors) + "\n"
+            string = "{}.\t".format(line_index + 1) + " ".join(errors) + " \n"
             self.lexical_erros.write(string)
 
         return len(errors)
