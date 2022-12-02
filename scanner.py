@@ -14,6 +14,7 @@ class Scanner:
         self.start = 0
         self.pointer = 0
         self.state = 0
+        self.comment_line = 0
 
     def tokenize(self):
         line_index = 0
@@ -96,6 +97,7 @@ class Scanner:
                 elif char == "*":
                     self.state = 13
                     self.start = self.pointer - 1
+                    self.comment_line = line_index
                 else:
                     tokens.append("(SYMBOL, /)")
                     self.state = 0
@@ -104,16 +106,24 @@ class Scanner:
                 if self.pointer != len(line) - 1:
                     pass
                 else:
-                    # tokens.append("(COMMENT,{})".format(
-                    #     line[self.start:self.pointer+1]))
+                    tokens.append("(COMMENT,{})".format(
+                        line[self.start:self.pointer+1]))
+                    self.state = 0
+            elif self.state == 13:
+                if char == "*":
+                    self.state = 14
+            elif self.state == 14:
+                if char != "*" or char != "/":
+                    self.state = 13
+                elif char == "/":
                     self.state = 0
             self.pointer += 1
         if len(tokens) > 0:
             print("\nTOKENS:")
             for t in tokens:
                 print(t, end=" ")
+        if len(errors) > 0:
             print("\nERRORS:")
             for e in errors:
                 print(e, end=" ")
         self.pointer = 0
-        return None
