@@ -27,7 +27,7 @@ def find_dif_files(file1, file2):
                 print("Line ", i, ":")
                 # else print that line from both files
                 print("\t{}:\t".format(file1), line1, end='')
-                print("\t{}:\t\t".format(file2), line2, end='')
+                print("\t{}:\t\t\t".format(file2), line2, end='')
             break
 
     # closing files
@@ -53,7 +53,7 @@ for i in os.listdir(testcases):
 
     try:
         find_dif_files(os.path.join(testcases, i, tok), tok)
-        find_dif_files(os.path.join(testcases, i, sym), sym)
+        # find_dif_files(os.path.join(testcases, i, sym), sym)
         find_dif_files(os.path.join(testcases, i, lex), lex)
     except:
         print("Testcases with no output.")

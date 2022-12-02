@@ -146,6 +146,9 @@ class Scanner:
                 elif char != "*":
                     self.state = 13
             self.pointer += 1
+        if self.state in [6, 8, 10]:
+            tokens.append("(SYMBOL, {})".format(line[-1]))
+            self.state = 0
         # if len(tokens) > 0:
         #     print("\nTOKENS:")
         #     for t in tokens:
