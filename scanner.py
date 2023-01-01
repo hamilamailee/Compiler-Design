@@ -21,10 +21,6 @@ class Scanner:
         self.errors = 0
         self.comment_line = 0
 
-        self.tokens = open("tokens.txt", "a+")
-        self.lexical_erros = open("lexical_errors.txt", "a+")
-        self.symbol_table = open("symbol_table.txt", "a+")
-
     def get_next_token(self):
         line = self.lines[self.line_index].strip()
         line = line + "\n"
