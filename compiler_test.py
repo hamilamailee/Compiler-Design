@@ -47,13 +47,10 @@ def initialize_files():
 testcases = "Testcases"
 
 for i in os.listdir(testcases):
-    initialize_files()
+    # initialize_files()
     scanner = Scanner(os.path.join(testcases, i, "input.txt"))
-    scanner.tokenize()
-
-    try:
-        find_dif_files(os.path.join(testcases, i, tok), tok)
-        # find_dif_files(os.path.join(testcases, i, sym), sym)
-        find_dif_files(os.path.join(testcases, i, lex), lex)
-    except:
-        print("Testcases with no output.")
+    tstring = "start"
+    while (tstring != "$"):
+        ttype, tstring = scanner.get_next_token()
+        print(ttype, ",", tstring)
+    print("==================================================")
