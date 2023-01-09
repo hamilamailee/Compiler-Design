@@ -52,7 +52,7 @@ class Scanner:
                     pass
                 else:
                     self.pointer += 1
-                    return char, "Invalid input"
+                    continue
 
             #   STARTING FROM STATE1   #
             elif self.state == 1:
@@ -68,7 +68,7 @@ class Scanner:
                 else:
                     self.state = 0
                     self.pointer += 1
-                    return line[self.start:self.pointer], "Invalid input"
+                    continue
 
             #   STARTING FROM STATE3   #
             elif self.state == 3:
@@ -80,7 +80,7 @@ class Scanner:
                 else:
                     self.state = 0
                     self.pointer += 1
-                    return line[self.start:self.pointer], "Invalid number"
+                    continue
 
             #   STARTING FROM STATE6   #
             elif self.state == 6:
@@ -90,7 +90,7 @@ class Scanner:
                     return "SYMBOL", "=="
                 elif char not in self.VALID:
                     self.pointer += 1
-                    return line[self.pointer-2:self.pointer], "Invalid input"
+                    continue
                 else:
                     return "SYMBOL", "="
 
@@ -99,7 +99,7 @@ class Scanner:
                 self.state = 0
                 if char == "/":
                     self.pointer += 1
-                    return "*/", "Unmatched comment"
+                    continue
                 else:
                     return "SYMBOL", "*"
 
