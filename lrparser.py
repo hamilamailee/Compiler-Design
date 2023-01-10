@@ -72,6 +72,7 @@ class Parser:
             else:
                 self.error = True
                 # TODO: PANIC MODE IMPLEMENTATION
+                return
 
         self.write_files()
 

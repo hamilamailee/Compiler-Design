@@ -52,6 +52,9 @@ for i in os.listdir(testcases):
     parser.parse()
 
     for f in files:
-        find_dif_files(os.path.join(testcases, i, f), f)
+        try:
+            find_dif_files(os.path.join(testcases, i, f), f)
+        except:
+            print("NO FILE FOUND FOR COMPARISON")
 
     print("==================================================")
