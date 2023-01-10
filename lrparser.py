@@ -94,7 +94,7 @@ class Parser:
                 f.write("%s%s\n" % (pre, node.name))
             f.close()
 
-        with open('syntax_erros.txt', 'a', encoding='utf-8') as f:
+        with open('syntax_errors.txt', 'a', encoding='utf-8') as f:
             if not self.error:
                 f.write("There is no syntax error.")
             f.close()

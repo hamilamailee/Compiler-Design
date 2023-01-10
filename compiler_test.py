@@ -1,16 +1,15 @@
 from scanner import Scanner
+from lrparser import Parser
 import os
 
-tok = "tokens.txt"
-sym = "symbol_table.txt"
-lex = "lexical_errors.txt"
+files = ["parse_tree.txt", "syntax_errors.txt"]
 
 
 def find_dif_files(file1, file2):
     print("{} vs {}".format(file1, file2))
     # reading files
-    f1 = open(file1, "r")
-    f2 = open(file2, "r")
+    f1 = open(file1, "r", encoding="utf-8")
+    f2 = open(file2, "r", encoding="utf-8")
 
     i = 0
 
@@ -22,12 +21,13 @@ def find_dif_files(file1, file2):
             # matching line1 from both files
             if line1 == line2:
                 # print IDENTICAL if similar
-                print("Line ", i, ": IDENTICAL")
+                pass
+                # print("Line ", i, ": IDENTICAL")
             else:
                 print("Line ", i, ":")
                 # else print that line from both files
-                print("\t{}:\t".format(file1), line1, end='')
-                print("\t{}:\t\t\t".format(file2), line2, end='')
+                print("\t{}:".format(file1), line1, end='')
+                print("\t{}:".format(file2), line2, end='')
             break
 
     # closing files
@@ -36,21 +36,22 @@ def find_dif_files(file1, file2):
 
 
 def initialize_files():
-    if os.path.exists(tok):
-        os.remove(tok)
-    if os.path.exists(sym):
-        os.remove(sym)
-    if os.path.exists(lex):
-        os.remove(lex)
+    for f in files:
+        if os.path.exists(f):
+            os.remove(f)
 
 
-testcases = "Testcases"
+testcases = "Testcases-P2"
 
 for i in os.listdir(testcases):
-    # initialize_files()
+    print("TEST NUMBER", i)
+    initialize_files()
+
     scanner = Scanner(os.path.join(testcases, i, "input.txt"))
-    tstring = "start"
-    while (tstring != "$"):
-        ttype, tstring = scanner.get_next_token()
-        print(ttype, ",", tstring)
+    parser = Parser(scanner, r"grammar/table.json")
+    parser.parse()
+
+    for f in files:
+        find_dif_files(os.path.join(testcases, i, f), f)
+
     print("==================================================")
