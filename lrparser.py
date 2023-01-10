@@ -75,8 +75,7 @@ class Parser:
 
             else:
                 self.error = True
-                # TODO: PANIC MODE IMPLEMENTATION
-                self.err_string += f'#{self.scanner.line_index + 1} : syntax error , illegal {self.token[0]}\n'
+                self.err_string += f'#{self.scanner.line_index + 1} : syntax error , illegal {self.token[1]}\n'
 
                 # a) Skip the current input symbol
                 token, string = self.scanner.get_next_token()
@@ -104,7 +103,7 @@ class Parser:
                     list_of_gotos = sorted(
                         list_of_gotos, key=lambda x: x[0])
 
-                    # b) Discard zero or more input symbols
+                    # c) Stack the nonterminal and goto
                     for rule_goto in list_of_gotos:
                         (non_terminal, state) = rule_goto
                         if self.token[0] in self.follow[non_terminal]:
@@ -115,6 +114,8 @@ class Parser:
                                                       ][non_terminal]
                             self.stack_state.append(action.split("_")[1])
                             break
+
+                    # b) Discard zero or more input symbols
                     if discard:
                         self.err_string += f'#{self.scanner.line_index + 1} : syntax error , discarded {self.token[1]} from input\n'
                         token, string = self.scanner.get_next_token()

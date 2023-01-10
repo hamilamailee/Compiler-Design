@@ -2,7 +2,8 @@ from scanner import Scanner
 from lrparser import Parser
 import os
 
-files = ["parse_tree.txt", "syntax_errors.txt"]
+# files = ["parse_tree.txt", "syntax_errors.txt"]
+files = ["syntax_errors.txt"]
 
 
 def find_dif_files(file1, file2):
