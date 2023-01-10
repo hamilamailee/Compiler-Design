@@ -33,7 +33,10 @@ class Parser:
                 self.token = string if token in [
                     "KEYWORD", "SYMBOL"] else token
 
-            self.action = self.parse_table[self.stack_state[-1]][self.token]
+            try:
+                self.action = self.parse_table[self.stack_state[-1]][self.token]
+            except:
+                self.action = "PANIC"
 
             if self.action == ("accept"):
                 continue
@@ -68,6 +71,7 @@ class Parser:
 
             else:
                 self.error = True
+                # TODO: PANIC MODE IMPLEMENTATION
 
         self.write_files()
 
