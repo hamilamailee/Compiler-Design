@@ -35,7 +35,10 @@ class Parser:
 
             self.action = self.parse_table[self.stack_state[-1]][self.token]
 
-            if self.action.startswith("shift"):
+            if self.action == ("accept"):
+                continue
+
+            elif self.action.startswith("shift"):
                 self.update_stack(self.token, Node(
                     "({}, {})".format(token, string)))
                 self.token = "$" if self.token == "$" else None
