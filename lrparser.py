@@ -72,6 +72,36 @@ class Parser:
             else:
                 self.error = True
                 # TODO: PANIC MODE IMPLEMENTATION
+                print(f'#line_number : syntax error , illegal {self.token}')
+                self.stack_state.pop()
+                self.stack_state.pop()
+                while("goto" not in value for value in self.parse_table[self.stack_state[-1]].values()):
+                    self.stack_state.pop()
+                    self.stack_state.pop()
+                error_handling = self.parse_table[self.stack_state[-1]
+                                                  ][self.stack_state[-2]]
+                ac, ind = error_handling.split("_")
+                list_of_gotos = []
+                for (key, value) in self.parse_table[self.stack_state[-1]]:
+                    if "goto" in value:
+                        list_of_gotos.append((key, value))
+                list_of_gotos = sorted(list_of_gotos, key=lambda x: x[1])
+                try:
+                    input, string = self.scanner.get_next_token()
+                    if input in ["KEYWORD", "SYMBOL"]:
+                        input = string
+                except:
+                    input = "$"
+                for i in range(len(list_of_gotos)):
+                    key, value = list_of_gotos[i]
+                    if input in self.follow[key]:
+                        # add key to the stack
+                        self.stack_state.append(key)
+                        ac = self.parse_table[self.stack_state[-2]
+                                              ][self.stack_state[-1]]
+                        number = ac.split("_")[1]
+                        self.stack_state.append(number)
+                        break
                 return
 
         self.write_files()
