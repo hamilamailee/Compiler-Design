@@ -20,6 +20,8 @@ class Parser:
         self.token = None
         self.action = "shift"
 
+        self.root = None
+        self.nodes = []
         self.reductions = []
         self.strings = []
 
@@ -30,6 +32,7 @@ class Parser:
             if self.token is None:
                 try:
                     self.token, string = self.scanner.get_next_token()
+                    tok_name = self.token
                     self.strings.append("({}, {})".format(self.token, string))
                     if self.token in ["KEYWORD", "SYMBOL"]:
                         self.token = string
@@ -43,14 +46,28 @@ class Parser:
             if self.action == "shift":
                 self.stack_token.append(self.token)
                 self.stack_state.append(index)
+                self.nodes.append(
+                    [self.token, Node("({}, {})".format(tok_name, string))])
                 self.token = None
             elif self.action == "reduce":
                 production_rule = self.grammar[index]
+                self.root = Node(production_rule[0])
+                if self.root.name == "program":
+                    end = Node("$", parent=self.root)
                 if production_rule[-1] != 'epsilon':
                     self.stack_token = self.stack_token[:2 -
                                                         len(production_rule)]
                     self.stack_state = self.stack_state[:2 -
                                                         len(production_rule)]
+                    for i in range(len(production_rule) - 2):
+                        top = self.nodes.pop()[1]
+                        top.parent = self.root
+                else:
+                    top = Node("epsilon")
+                    top.parent = self.root
+                self.nodes.append([self.root.name, self.root])
+                # for pre, fill, node in RenderTree(self.root):
+                #     print("%s%s" % (pre, node.name))
 
                 action = self.parse_table[self.stack_state[-1]
                                           ][production_rule[0]]
@@ -80,17 +97,8 @@ class Parser:
                 children.pop(c)
 
     def write_files(self):
-        root = Node(self.reductions[-1][0])
-        self.generate_parse_tree(root, self.reductions.pop())
-        end = Node("$", parent=root)
-
-        self.strings.pop()
-        for l in root.leaves[::-1][1:]:
-            if l.name != "epsilon":
-                l.name = self.strings.pop()
-
         with open('parse_tree.txt', 'a',  encoding='utf-8') as f:
-            for pre, fill, node in RenderTree(root):
+            for pre, fill, node in RenderTree(self.root, childiter=reversed):
                 f.write("%s%s\n" % (pre, node.name))
             f.close()
 
