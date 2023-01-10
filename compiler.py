@@ -7,7 +7,3 @@ from lrparser import Parser
 scanner = Scanner("input.txt")
 parser = Parser(scanner, r"grammar/table.json")
 parser.parse()
-# tstring = ""
-# while (tstring != "$"):
-#     ttype, tstring = scanner.get_next_token()
-#     print(ttype, ",", tstring)
