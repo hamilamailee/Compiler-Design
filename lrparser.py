@@ -22,42 +22,35 @@ class Parser:
 
         self.root = None
         self.nodes = []
-        self.reductions = []
-        self.strings = []
 
         self.error = False
 
     def parse(self):
         while (self.action != "accept"):
+
             if self.token is None:
-                try:
-                    self.token, string = self.scanner.get_next_token()
-                    tok_name = self.token
-                    self.strings.append("({}, {})".format(self.token, string))
-                    if self.token in ["KEYWORD", "SYMBOL"]:
-                        self.token = string
-                except:
-                    self.token = "$"
-            action = self.parse_table[self.stack_state[-1]][self.token]
-            if action == "accept":
-                self.action = action
-                continue
-            self.action, index = action.split("_")
-            if self.action == "shift":
-                self.stack_token.append(self.token)
-                self.stack_state.append(index)
-                self.nodes.append(
-                    [self.token, Node("({}, {})".format(tok_name, string))])
-                self.token = None
-            elif self.action == "reduce":
-                production_rule = self.grammar[index]
+                token, string = self.scanner.get_next_token()
+                self.token = string if token in [
+                    "KEYWORD", "SYMBOL"] else token
+
+            self.action = self.parse_table[self.stack_state[-1]][self.token]
+
+            if self.action.startswith("shift"):
+                self.update_stack(self.token, Node(
+                    "({}, {})".format(token, string)))
+                self.token = "$" if self.token == "$" else None
+
+            elif self.action.startswith("reduce"):
+                production_rule = self.grammar[self.action.split("_")[1]]
+
                 self.root = Node(production_rule[0])
                 if self.root.name == "program":
                     end = Node("$", parent=self.root)
+
                 if production_rule[-1] != 'epsilon':
                     self.stack_token = self.stack_token[:2 -
                                                         len(production_rule)]
-                    self.stack_state = self.stack_state[:2 -
+                    self.stack_state = self.stack_state[: 2 -
                                                         len(production_rule)]
                     for i in range(len(production_rule) - 2):
                         top = self.nodes.pop()[1]
@@ -65,36 +58,22 @@ class Parser:
                 else:
                     top = Node("epsilon")
                     top.parent = self.root
-                self.nodes.append([self.root.name, self.root])
-                # for pre, fill, node in RenderTree(self.root):
-                #     print("%s%s" % (pre, node.name))
 
-                action = self.parse_table[self.stack_state[-1]
-                                          ][production_rule[0]]
-                self.reductions.append(production_rule)
-                if action == "accept":
-                    self.action = "accept"
-                    continue
+                self.action = self.parse_table[self.stack_state[-1]
+                                               ][production_rule[0]]
+                self.update_stack(production_rule[0], self.root)
 
-                self.action, index = action.split("_")
-                self.stack_token.append(production_rule[0])
-                self.stack_state.append(index)
             else:
                 self.error = True
 
         self.write_files()
 
-    def generate_parse_tree(self, root_node, root_children):
-        children = dict()
-        for c in root_children[2:]:
-            children[c] = Node(c, parent=root_node)
-
-        for c in list(children)[::-1]:
-            if len(self.reductions) == 0:
-                return
-            if self.reductions[-1][0] == c:
-                self.generate_parse_tree(children[c], self.reductions.pop())
-                children.pop(c)
+    def update_stack(self, token, node: Node):
+        if self.action == "accept":
+            return
+        self.stack_token.append(token)
+        self.stack_state.append(self.action.split("_")[1])
+        self.nodes.append([node.name, node])
 
     def write_files(self):
         with open('parse_tree.txt', 'a',  encoding='utf-8') as f:
