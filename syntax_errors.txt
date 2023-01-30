@@ -1,0 +1,17 @@
+#3 : syntax error , illegal 1
+syntax error , discarded (ID, global) from stack
+syntax error , discarded type_specifier from stack
+#3 : syntax error , missing var_declaration
+#3 : syntax error , illegal ;
+syntax error , discarded var_declaration from stack
+#5 : syntax error , missing declaration
+#8 : syntax error , illegal int
+syntax error , discarded (SYMBOL, ;) from stack
+syntax error , discarded expression from stack
+#8 : syntax error , missing compound_stmt
+#8 : syntax error , illegal ,
+syntax error , discarded expression from stack
+#8 : syntax error , missing compound_stmt
+#8 : syntax error , illegal int
+syntax error , discarded compound_stmt from stack
+#8 : syntax error , missing compound_stmt

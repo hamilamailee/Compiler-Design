@@ -63,8 +63,9 @@ class Parser:
                     self.stack_state = self.stack_state[: 2 -
                                                         len(production_rule)]
                     for i in range(len(production_rule) - 2):
-                        top = self.nodes.pop()[1]
-                        top.parent = self.root
+                        if len(self.nodes) > 0:
+                            top = self.nodes.pop()[1]
+                            top.parent = self.root
                 else:
                     top = Node("epsilon")
                     top.parent = self.root
